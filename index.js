@@ -24,9 +24,6 @@ app.post('/submitForm', async (req, res) => {
   const formData = req.body;
 
   try {
-    // Assuming the payment was successful
-    // You can update the payment status here if needed
-
     await db.none(
       'INSERT INTO yoga_registration(name, age, selected_batch, mobile, payment_status, edit_batch) VALUES($1, $2, $3, $4, $5, $6)',
       [
@@ -34,7 +31,7 @@ app.post('/submitForm', async (req, res) => {
         formData.age,
         formData.selectedBatch,
         formData.mobile,
-        formData.payment_status,
+        formData.payment_status, // Assuming payment_status and edit_batch are part of formData
         formData.edit_batch,
       ]
     );
