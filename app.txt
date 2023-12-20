@@ -1,0 +1,74 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const pg = require('pg');
+
+const app = express();
+const port = process.env.PORT || 3001;
+
+app.use(cors());
+app.use(bodyParser.json());
+
+app.post('/submitForm', async (req, res) => {
+  const formData = req.body;
+  
+  // Create a new client for each request
+  const client = new pg.Client({
+    user: "postgres",
+    password: "Admin0272", // Replace with your actual password
+    host: "42.106.249.202",
+    database: "initial_db",
+    port: 5432,
+    ssl: true,
+    // Set the connection timeout to a higher value (in milliseconds)
+    connectionTimeoutMillis: 60000, // Adjust the value as needed
+  });
+
+  try {
+    // Connect to the PostgreSQL database
+    await client.connect();
+
+    // Insert data into the PostgreSQL database
+    await client.query('INSERT INTO yoga_registration(name, age, selected_batch, mobile) VALUES($1, $2, $3, $4)', [
+      formData.name,
+      formData.age,
+      formData.selectedBatch,
+      formData.mobile,
+    ]);
+
+    res.status(200).json({ message: 'Form submitted successfully' });
+  } catch (error) {
+    console.error('Error inserting into the database:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    // Close the PostgreSQL connection
+    await client.end();
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Backend server is running on port ${port}`);
+});
+
+
+
+import React from 'react';
+import { useRouter } from 'next/router';
+
+const ProfilePage = () => {
+  const router = useRouter();
+  const { name, age, selectedBatch, mobile } = router.query;
+
+  return (
+    <div>
+      <h1>User Profile</h1>
+      <p>Name: {name}</p>
+      <p>Age: {age}</p>
+      <p>Selected Batch: {selectedBatch}</p>
+      <p>Mobile: {mobile}</p>
+      {/* Add other profile information as needed */}
+    </div>
+  );
+};
+
+export default ProfilePage;
